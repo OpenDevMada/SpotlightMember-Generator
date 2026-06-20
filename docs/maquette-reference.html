@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spotlight Generator — OpenDev Mada</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1B2A4A;
+    --navy-light: #2a3f6f;
+    --off-white: #F7F7F5;
+    --white: #ffffff;
+    --border: #d0d4dc;
+  }
+
+  body {
+    background: #eef0f4;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    gap: 40px;
+    padding: 40px;
+    min-height: 100vh;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  /* ── PANNEAU ÉDITEUR ── */
+  .editor {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    width: 320px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  }
+
+  .editor h2 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1.5px solid var(--navy);
+  }
+
+  .field { margin-bottom: 16px; }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 6px;
+  }
+
+  .field input, .field textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 13px;
+    color: var(--navy);
+    outline: none;
+    transition: border-color .15s;
+    font-family: inherit;
+  }
+
+  .field input:focus, .field textarea:focus {
+    border-color: var(--navy);
+  }
+
+  .field small {
+    display: block;
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 4px;
+  }
+
+  .photo-upload {
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+
+  .photo-upload:hover { border-color: var(--navy); }
+
+  .photo-upload input { display: none; }
+
+  .photo-upload span {
+    font-size: 12px;
+    color: #999;
+    display: block;
+    margin-top: 6px;
+  }
+
+  .photo-preview {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 6px;
+    display: block;
+    border: 2px solid var(--navy);
+  }
+
+  .logo-upload {
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+
+  .logo-upload:hover { border-color: var(--navy); }
+  .logo-upload input { display: none; }
+
+  .logo-preview {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    margin: 0 auto 4px;
+    display: block;
+  }
+
+  .btn-export {
+    width: 100%;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 13px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: background .15s;
+  }
+
+  .btn-export:hover { background: var(--navy-light); }
+
+  /* ── CARTE PREVIEW ── */
+  .preview-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .preview-label {
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #999;
+  }
+
+  #card {
+    width: 540px;
+    background: var(--white);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    overflow: hidden;
+    border-radius: 4px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.12);
+  }
+
+  /* Bandeau haut */
+  .card-top {
+    background: var(--navy);
+    height: 120px;
+    position: relative;
+  }
+
+  /* Photo */
+  .card-photo-wrap {
+    position: absolute;
+    left: 48px;
+    bottom: -70px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 4px solid var(--navy);
+    background: #e8eaf0;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  .card-photo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #e8eaf0;
+    gap: 6px;
+  }
+
+  .card-photo-placeholder svg { opacity: .4; }
+
+  /* SPOTLIGHT label */
+  .card-spotlight-label {
+    position: absolute;
+    right: 48px;
+    bottom: 28px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .35em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.7);
+  }
+
+  /* Corps */
+  .card-body {
+    padding: 88px 48px 40px 48px;
+  }
+
+  /* Nom */
+  #card-name {
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.0;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: -.01em;
+    margin-bottom: 20px;
+    word-break: break-word;
+  }
+
+  /* Infos */
+  .card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .card-info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: var(--navy);
+    font-weight: 500;
+  }
+
+  .card-info-row svg {
+    flex-shrink: 0;
+    opacity: .7;
+  }
+
+  /* Stack badges */
+  .card-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  .card-badge {
+    border: 1.5px solid var(--navy);
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--navy);
+    letter-spacing: .02em;
+  }
+
+  /* Footer */
+  .card-footer {
+    border-top: 1.5px solid #dde0e8;
+    padding-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .card-logo-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 1.5px solid var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: white;
+  }
+
+  .card-logo-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .card-logo-placeholder {
+    font-size: 10px;
+    color: #aaa;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .card-footer-divider {
+    width: 1.5px;
+    height: 32px;
+    background: #dde0e8;
+  }
+
+  .card-org-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    letter-spacing: .01em;
+  }
+</style>
+</head>
+<body>
+
+<!-- ÉDITEUR -->
+<div class="editor">
+  <h2>Spotlight Generator</h2>
+
+  <div class="field">
+    <label>Photo de profil</label>
+    <div class="photo-upload" onclick="document.getElementById('photoInput').click()">
+      <input type="file" id="photoInput" accept="image/*" onchange="loadPhoto(this)">
+      <img id="photoPreview" class="photo-preview" src="" style="display:none">
+      <svg id="photoIcon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Cliquer pour uploader</span>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Nom complet</label>
+    <input type="text" id="inputName" placeholder="Ex : Fabrice Bj" oninput="update()" value="MANANTSSOA RAKOTONDRASOA">
+  </div>
+
+  <div class="field">
+    <label>Ville</label>
+    <input type="text" id="inputCity" placeholder="Ex : Antananarivo, Madagascar" oninput="update()" value="Antananarivo, Madagascar">
+  </div>
+
+  <div class="field">
+    <label>Rôle</label>
+    <input type="text" id="inputRole" placeholder="Ex : Full-Stack Developer" oninput="update()" value="Full-Stack Developer">
+  </div>
+
+  <div class="field">
+    <label>Stack technique</label>
+    <input type="text" id="inputStack" placeholder="React, Laravel, Node.js, Electron" oninput="update()" value="React, Laravel, Node.js, Electron">
+    <small>Séparés par des virgules</small>
+  </div>
+
+  <div class="field">
+    <label>Logo OpenDev Mada</label>
+    <div class="logo-upload" onclick="document.getElementById('logoInput').click()">
+      <input type="file" id="logoInput" accept="image/*" onchange="loadLogo(this)">
+      <img id="logoPreview" class="logo-preview" src="" style="display:none">
+      <svg id="logoIcon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <span style="font-size:11px;color:#999;display:block;margin-top:4px">Logo PNG transparent</span>
+    </div>
+  </div>
+
+  <button class="btn-export" onclick="exportCard()">Exporter en PNG</button>
+</div>
+
+<!-- PRÉVIEW CARTE -->
+<div class="preview-wrap">
+  <span class="preview-label">Aperçu en temps réel</span>
+
+  <div id="card">
+    <!-- Bandeau haut -->
+    <div class="card-top">
+      <div class="card-photo-wrap" id="cardPhotoWrap">
+        <div class="card-photo-placeholder" id="cardPhotoPlaceholder">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <img id="cardPhoto" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+      </div>
+      <div class="card-spotlight-label">SPOTLIGHT</div>
+    </div>
+
+    <!-- Corps -->
+    <div class="card-body">
+      <div id="card-name">MANANTSSOA<br>RAKOTONDRASOA</div>
+
+      <div class="card-info">
+        <div class="card-info-row">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="2"><path d="M12 21s-7-6.75-7-11a7 7 0 0114 0c0 4.25-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          <span id="card-city">Antananarivo, Madagascar</span>
+        </div>
+        <div class="card-info-row">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+          <span id="card-role">Full-Stack Developer</span>
+        </div>
+      </div>
+
+      <div class="card-stack" id="card-stack">
+        <span class="card-badge">React</span>
+        <span class="card-badge">Laravel</span>
+        <span class="card-badge">Node.js</span>
+        <span class="card-badge">Electron</span>
+      </div>
+
+      <div class="card-footer">
+        <div class="card-logo-circle" id="cardLogoCircle">
+          <div class="card-logo-placeholder" id="cardLogoPlaceholder">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <img id="cardLogo" src="" style="display:none; width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div class="card-footer-divider"></div>
+        <div class="card-org-name">OpenDev Mada</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function update() {
+    // Nom
+    const name = document.getElementById('inputName').value.toUpperCase() || 'NOM DU MEMBRE';
+    const words = name.trim().split(' ');
+    const mid = Math.ceil(words.length / 2);
+    const line1 = words.slice(0, mid).join(' ');
+    const line2 = words.slice(mid).join(' ');
+    document.getElementById('card-name').innerHTML = line2 ? line1 + '<br>' + line2 : line1;
+
+    // Ville & rôle
+    document.getElementById('card-city').textContent = document.getElementById('inputCity').value || 'Ville, Pays';
+    document.getElementById('card-role').textContent = document.getElementById('inputRole').value || 'Rôle';
+
+    // Stack badges
+    const stackRaw = document.getElementById('inputStack').value;
+    const badges = stackRaw.split(',').map(s => s.trim()).filter(Boolean);
+    const container = document.getElementById('card-stack');
+    container.innerHTML = badges.map(b => `<span class="card-badge">${b}</span>`).join('');
+  }
+
+  function loadPhoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      // Preview éditeur
+      const prev = document.getElementById('photoPreview');
+      prev.src = e.target.result;
+      prev.style.display = 'block';
+      document.getElementById('photoIcon').style.display = 'none';
+      // Carte
+      const cardPhoto = document.getElementById('cardPhoto');
+      cardPhoto.src = e.target.result;
+      cardPhoto.style.display = 'block';
+      document.getElementById('cardPhotoPlaceholder').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function loadLogo(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const prev = document.getElementById('logoPreview');
+      prev.src = e.target.result;
+      prev.style.display = 'block';
+      document.getElementById('logoIcon').style.display = 'none';
+      const cardLogo = document.getElementById('cardLogo');
+      cardLogo.src = e.target.result;
+      cardLogo.style.display = 'block';
+      document.getElementById('cardLogoPlaceholder').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function exportCard() {
+    const card = document.getElementById('card');
+    html2canvas(card, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false
+    }).then(canvas => {
+      const name = document.getElementById('inputName').value.replace(/\s+/g, '_') || 'spotlight';
+      const link = document.createElement('a');
+      link.download = `spotlight_${name}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  }
+</script>
+</body>
+</html>

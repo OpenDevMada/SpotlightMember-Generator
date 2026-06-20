@@ -1,0 +1,356 @@
+/* ═══════════════════════════════════════════════════════
+   SpotlightMember-Generator — Charte OpenDev Mada
+   Référence visuelle : docs/maquette-reference.html
+   ⚠️ Ces tokens (couleurs, typo, dimensions) sont la charte
+   officielle. Ne pas s'en écarter sans validation du repo.
+   ═══════════════════════════════════════════════════════ */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy: #1B2A4A;
+  --navy-light: #2a3f6f;
+  --off-white: #F7F7F5;
+  --white: #ffffff;
+  --border: #d0d4dc;
+}
+
+body {
+  background: #eef0f4;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  display: flex;
+  gap: 40px;
+  padding: 40px;
+  min-height: 100vh;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* ── PANNEAU ÉDITEUR ── */
+.editor {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  width: 320px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+
+.editor h2 {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--navy);
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid var(--navy);
+}
+
+.field { margin-bottom: 16px; }
+
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.field input, .field textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: var(--navy);
+  outline: none;
+  transition: border-color .15s;
+  font-family: inherit;
+}
+
+.field input:focus, .field textarea:focus {
+  border-color: var(--navy);
+}
+
+.field small {
+  display: block;
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+/* TÂCHE 1 — état d'erreur de validation, à activer en JS via la classe .has-error / #nameError visible */
+.field-error {
+  color: #c0392b !important;
+}
+
+.field input.invalid {
+  border-color: #c0392b;
+}
+
+.photo-upload {
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+
+.photo-upload:hover { border-color: var(--navy); }
+
+.photo-upload input { display: none; }
+
+.photo-upload span {
+  font-size: 12px;
+  color: #999;
+  display: block;
+  margin-top: 6px;
+}
+
+.photo-preview {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 6px;
+  display: block;
+  border: 2px solid var(--navy);
+}
+
+.logo-upload {
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+
+.logo-upload:hover { border-color: var(--navy); }
+.logo-upload input { display: none; }
+
+.logo-preview {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  margin: 0 auto 4px;
+  display: block;
+}
+
+.btn-export {
+  width: 100%;
+  background: var(--navy);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 13px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 24px;
+  transition: background .15s;
+}
+
+.btn-export:hover { background: var(--navy-light); }
+.btn-export:disabled { background: #aab; cursor: not-allowed; }
+
+/* ── CARTE PREVIEW ── */
+.preview-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.preview-label {
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #999;
+}
+
+#card {
+  width: 540px;
+  background: var(--white);
+  font-family: 'Segoe UI', Arial, sans-serif;
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.12);
+}
+
+/* Bandeau haut */
+.card-top {
+  background: var(--navy);
+  height: 120px;
+  position: relative;
+}
+
+/* Photo */
+.card-photo-wrap {
+  position: absolute;
+  left: 48px;
+  bottom: -70px;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 4px solid var(--navy);
+  background: #e8eaf0;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.card-photo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #e8eaf0;
+  gap: 6px;
+}
+
+.card-photo-placeholder svg { opacity: .4; }
+
+/* SPOTLIGHT label */
+.card-spotlight-label {
+  position: absolute;
+  right: 48px;
+  bottom: 28px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .35em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.7);
+}
+
+/* Corps */
+.card-body {
+  padding: 88px 48px 40px 48px;
+}
+
+/* Nom */
+#card-name {
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1.0;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: -.01em;
+  margin-bottom: 20px;
+  word-break: break-word;
+}
+
+/* Infos */
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.card-info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--navy);
+  font-weight: 500;
+}
+
+.card-info-row svg {
+  flex-shrink: 0;
+  opacity: .7;
+}
+
+/* Stack badges — générés dynamiquement, voir script.js TÂCHE 4 */
+.card-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.card-badge {
+  border: 1.5px solid var(--navy);
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--navy);
+  letter-spacing: .02em;
+}
+
+/* Footer */
+.card-footer {
+  border-top: 1.5px solid #dde0e8;
+  padding-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.card-logo-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1.5px solid var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: white;
+}
+
+.card-logo-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.card-logo-placeholder {
+  font-size: 10px;
+  color: #aaa;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.card-footer-divider {
+  width: 1.5px;
+  height: 32px;
+  background: #dde0e8;
+}
+
+.card-org-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: .01em;
+}
+
+/* ── RESPONSIVE ──
+   Non géré dans la maquette de référence — pistes ouvertes
+   pour une contribution (cf. issue "Responsive mobile") */
+@media (max-width: 920px) {
+  body {
+    flex-direction: column;
+    align-items: center;
+  }
+  #card {
+    width: 100%;
+    max-width: 540px;
+  }
+}

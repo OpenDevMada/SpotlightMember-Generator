@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spotlight Generator — OpenDev Mada</title>
+<link rel="stylesheet" href="style.css">
+<!-- html2canvas : nécessaire pour l'export PNG (Tâche 5) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     PANNEAU ÉDITEUR (formulaire)
+     Voir docs/maquette-reference.html pour le rendu attendu
+     ═══════════════════════════════════════ -->
+<div class="editor">
+  <h2>Spotlight Generator</h2>
+
+  <!-- TÂCHE 2 — Upload photo de profil -->
+  <div class="field">
+    <label>Photo de profil</label>
+    <div class="photo-upload" id="photoUploadZone">
+      <input type="file" id="photoInput" accept="image/*">
+      <img id="photoPreview" class="photo-preview" src="" style="display:none" alt="Aperçu photo de profil">
+      <svg id="photoIcon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Cliquer pour uploader</span>
+    </div>
+  </div>
+
+  <!-- TÂCHE 1 — Champs du formulaire avec validation -->
+  <div class="field">
+    <label>Nom complet</label>
+    <input type="text" id="inputName" placeholder="Ex : Fabrice Bj">
+    <small id="nameError" class="field-error" hidden></small>
+  </div>
+
+  <div class="field">
+    <label>Ville</label>
+    <input type="text" id="inputCity" placeholder="Ex : Antananarivo, Madagascar">
+  </div>
+
+  <div class="field">
+    <label>Rôle</label>
+    <input type="text" id="inputRole" placeholder="Ex : Full-Stack Developer">
+  </div>
+
+  <!-- TÂCHE 4 — Badges de stack dynamiques -->
+  <div class="field">
+    <label>Stack technique</label>
+    <input type="text" id="inputStack" placeholder="React, Laravel, Node.js, Electron">
+    <small>Séparés par des virgules</small>
+  </div>
+
+  <!-- TÂCHE 2 — Upload logo -->
+  <div class="field">
+    <label>Logo OpenDev Mada</label>
+    <div class="logo-upload" id="logoUploadZone">
+      <input type="file" id="logoInput" accept="image/*">
+      <img id="logoPreview" class="logo-preview" src="" style="display:none" alt="Aperçu logo">
+      <svg id="logoIcon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <span style="font-size:11px;color:#999;display:block;margin-top:4px">Logo PNG transparent</span>
+    </div>
+  </div>
+
+  <!-- TÂCHE 5 — Export PNG -->
+  <button class="btn-export" id="exportBtn">Exporter en PNG</button>
+</div>
+
+<!-- ═══════════════════════════════════════
+     CARTE DE RENDU (preview temps réel)
+     TÂCHE 3 — doit se mettre à jour à chaque frappe
+     ═══════════════════════════════════════ -->
+<div class="preview-wrap">
+  <span class="preview-label">Aperçu en temps réel</span>
+
+  <div id="card">
+    <!-- Bandeau haut -->
+    <div class="card-top">
+      <div class="card-photo-wrap" id="cardPhotoWrap">
+        <div class="card-photo-placeholder" id="cardPhotoPlaceholder">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="1.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <img id="cardPhoto" src="" style="display:none" alt="Photo du membre">
+      </div>
+      <div class="card-spotlight-label">SPOTLIGHT</div>
+    </div>
+
+    <!-- Corps -->
+    <div class="card-body">
+      <div id="card-name">NOM DU<br>MEMBRE</div>
+
+      <div class="card-info">
+        <div class="card-info-row">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="2"><path d="M12 21s-7-6.75-7-11a7 7 0 0114 0c0 4.25-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          <span id="card-city">Ville, Pays</span>
+        </div>
+        <div class="card-info-row">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+          <span id="card-role">Rôle</span>
+        </div>
+      </div>
+
+      <!-- TÂCHE 4 — badges générés dynamiquement en JS, conteneur vide au départ -->
+      <div class="card-stack" id="card-stack"></div>
+
+      <div class="card-footer">
+        <div class="card-logo-circle" id="cardLogoCircle">
+          <div class="card-logo-placeholder" id="cardLogoPlaceholder">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <img id="cardLogo" src="" style="display:none" alt="Logo OpenDev Mada">
+        </div>
+        <div class="card-footer-divider"></div>
+        <div class="card-org-name">OpenDev Mada</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
